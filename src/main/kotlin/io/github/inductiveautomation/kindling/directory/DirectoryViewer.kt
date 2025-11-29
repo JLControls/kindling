@@ -265,7 +265,7 @@ class DirectoryImageView(override val path: Path) : DirectoryPathView() {
  * Project view for directory-based paths.
  */
 class DirectoryProjectView(override val path: Path) : DirectoryPathView() {
-    override val icon: Icon = FlatSVGIcon("icons/bx-box.svg")
+    override val icon: Icon = ProjectView.projectIcon
 
     init {
         val projectJsonPath = path / "project.json"
