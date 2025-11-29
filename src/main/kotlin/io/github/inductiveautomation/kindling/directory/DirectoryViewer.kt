@@ -277,13 +277,16 @@ class DirectoryProjectView(override val path: Path) : DirectoryPathView() {
 
 /**
  * Tool for opening Ignition 8.3+ file-structure based configurations.
+ * Directory selection is handled through the DirectoryTool interface, which triggers
+ * the file chooser to use FILES_AND_DIRECTORIES mode when this tool is selected.
  */
 object DirectoryViewer : Tool, DirectoryTool {
     override val serialKey = "directory-viewer"
     override val title = "Configuration Directory"
     override val description = "Ignition 8.3+ file-structure based configurations"
     override val icon = FlatSVGIcon("icons/bx-folder-open.svg")
-    override val filter = FileFilter(description, listOf()) // We'll handle directory selection differently
+    // Empty extension list since we work with directories; FileFilter accepts directories by default
+    override val filter = FileFilter(description, listOf())
 
     override fun open(path: Path): ToolPanel {
         if (!path.isDirectory()) {

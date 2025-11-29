@@ -49,6 +49,9 @@ class GitBranchView(private val repoPath: Path) : ToolPanel("ins 6, fill") {
     private val branches: List<Ref> = git.branchList().call()
     private val branchNames: List<String> = branches.map { it.name.removePrefix("refs/heads/") }
 
+    // Cache for resolved branch references to avoid repeated resolution
+    private val branchRefCache = mutableMapOf<String, org.eclipse.jgit.lib.ObjectId>()
+
     private val leftBranchCombo = FlatComboBox<String>().apply {
         branchNames.forEach { addItem(it) }
         selectedItem = findDefaultBranch(branchNames, listOf("main", "master", "develop"))
@@ -210,10 +213,17 @@ class GitBranchView(private val repoPath: Path) : ToolPanel("ins 6, fill") {
         return diffFormatter.scan(leftTree, rightTree)
     }
 
+    private fun resolveBranchRef(branchName: String): org.eclipse.jgit.lib.ObjectId? {
+        return branchRefCache.getOrPut(branchName) {
+            repository.resolve("refs/heads/$branchName")
+                ?: repository.resolve(branchName)
+                ?: return null
+        }
+    }
+
     private fun getTreeIterator(branchName: String): AbstractTreeIterator {
         val revWalk = RevWalk(repository)
-        val branchRef = repository.resolve("refs/heads/$branchName")
-            ?: repository.resolve(branchName)
+        val branchRef = resolveBranchRef(branchName)
             ?: throw IOException("Cannot resolve branch: $branchName")
 
         val commit = revWalk.parseCommit(branchRef)
@@ -258,9 +268,7 @@ class GitBranchView(private val repoPath: Path) : ToolPanel("ins 6, fill") {
         if (filePath == "/dev/null") return ""
 
         return try {
-            val branchRef = repository.resolve("refs/heads/$branchName")
-                ?: repository.resolve(branchName)
-                ?: return ""
+            val branchRef = resolveBranchRef(branchName) ?: return ""
 
             RevWalk(repository).use { revWalk ->
                 val commit = revWalk.parseCommit(branchRef)
