@@ -42,8 +42,10 @@ data class GatewayNetworkStatistics(
             """.trimIndent()
 
         override suspend fun calculate(backup: GatewayBackup): GatewayNetworkStatistics? {
+            val configDb = backup.configDb ?: return null
+
             val outgoing =
-                backup.configDb.executeQuery(OUTGOING_CONNECTIONS)
+                configDb.executeQuery(OUTGOING_CONNECTIONS)
                     .toList { rs ->
                         OutgoingConnection(
                             host = rs[1],
@@ -53,7 +55,7 @@ data class GatewayNetworkStatistics(
                     }
 
             val incoming =
-                backup.configDb.executeQuery(INCOMING_CONNECTIONS)
+                configDb.executeQuery(INCOMING_CONNECTIONS)
                     .toList { rs ->
                         IncomingConnection(rs[1])
                     }

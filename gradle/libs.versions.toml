@@ -6,6 +6,7 @@ flatlaf = "3.6.1"
 kotest = "5.9.1"
 ignition = "8.1.20"
 jackson = "2.20.1"
+jgit = "7.3.0.202506031305-r"
 
 [plugins]
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
@@ -27,6 +28,9 @@ excelkt = { group = "io.github.evanrupert", name = "excelkt", version = "1.0.2" 
 jsvg = { group = "com.github.weisj", name = "jsvg", version = "2.0.0" }
 jackson-kotlin = { group = "com.fasterxml.jackson.module", name = "jackson-module-kotlin", version.ref = "jackson" }
 jackson-xml = { group = "com.fasterxml.jackson.dataformat", name = "jackson-dataformat-xml", version.ref = "jackson" }
+
+# git support
+jgit = { group = "org.eclipse.jgit", name = "org.eclipse.jgit", version.ref = "jgit" }
 
 # build
 jsoup = { group = "org.jsoup", name = "jsoup", version = "1.21.2" }

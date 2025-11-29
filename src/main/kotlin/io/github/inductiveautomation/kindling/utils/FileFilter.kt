@@ -17,7 +17,12 @@ class FileFilter(
 ) : SwingFileFilter(), IoFileFilter {
     constructor(description: String, vararg extensions: String) : this(
         description,
-        { path -> path.extension.lowercase() in extensions },
+        { path -> extensions.isEmpty() || path.extension.lowercase() in extensions },
+    )
+
+    constructor(description: String, extensions: List<String>) : this(
+        description,
+        { path -> extensions.isEmpty() || path.extension.lowercase() in extensions },
     )
 
     fun accept(path: Path): Boolean {

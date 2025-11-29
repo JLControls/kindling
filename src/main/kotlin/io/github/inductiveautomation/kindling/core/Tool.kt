@@ -3,7 +3,9 @@ package io.github.inductiveautomation.kindling.core
 import com.formdev.flatlaf.extras.FlatSVGIcon
 import io.github.inductiveautomation.kindling.alarm.AlarmViewer
 import io.github.inductiveautomation.kindling.cache.CacheViewer
+import io.github.inductiveautomation.kindling.directory.DirectoryViewer
 import io.github.inductiveautomation.kindling.gatewaynetwork.GatewayNetworkTool
+import io.github.inductiveautomation.kindling.git.GitBranchViewer
 import io.github.inductiveautomation.kindling.idb.IdbViewer
 import io.github.inductiveautomation.kindling.localization.TranslationTool
 import io.github.inductiveautomation.kindling.log.LogViewer
@@ -56,7 +58,9 @@ interface Tool : KindlingSerializable {
             listOf(
                 AlarmViewer,
                 CacheViewer,
+                DirectoryViewer,
                 GatewayNetworkTool,
+                GitBranchViewer,
                 IdbViewer,
                 LogViewer,
                 MultiThreadViewer,
@@ -102,6 +106,17 @@ interface MultiTool : Tool {
  */
 interface ClipboardTool : Tool {
     fun open(data: String): ToolPanel
+}
+
+/**
+ * Extension interface for tools that open directories rather than files.
+ * These tools require the file chooser to allow directory selection.
+ */
+interface DirectoryTool : Tool {
+    /**
+     * Returns true if this tool should accept the given directory.
+     */
+    fun acceptsDirectory(path: java.nio.file.Path): Boolean
 }
 
 /**
