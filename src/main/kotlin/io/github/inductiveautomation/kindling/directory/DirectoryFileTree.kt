@@ -1,10 +1,8 @@
 package io.github.inductiveautomation.kindling.directory
 
-import com.formdev.flatlaf.extras.FlatSVGIcon
 import com.jidesoft.comparator.AlphanumComparator
 import com.jidesoft.swing.TreeSearchable
 import io.github.inductiveautomation.kindling.core.Tool
-import io.github.inductiveautomation.kindling.statistics.DirectoryConfigSource
 import io.github.inductiveautomation.kindling.utils.AbstractTreeNode
 import io.github.inductiveautomation.kindling.utils.ACTION_ICON_SCALE_FACTOR
 import io.github.inductiveautomation.kindling.utils.TypedTreeNode
@@ -17,7 +15,6 @@ import javax.swing.tree.TreeNode
 import javax.swing.tree.TreePath
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.PathWalkOption.INCLUDE_DIRECTORIES
-import kotlin.io.path.div
 import kotlin.io.path.isDirectory
 import kotlin.io.path.isRegularFile
 import kotlin.io.path.name

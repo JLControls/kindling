@@ -1,15 +1,10 @@
 package io.github.inductiveautomation.kindling.git
 
-import com.formdev.flatlaf.extras.FlatSVGIcon
 import com.formdev.flatlaf.extras.components.FlatComboBox
 import io.github.inductiveautomation.kindling.core.ToolPanel
-import io.github.inductiveautomation.kindling.statistics.DirectoryConfigSource
 import io.github.inductiveautomation.kindling.utils.Action
 import io.github.inductiveautomation.kindling.utils.EDT_SCOPE
 import io.github.inductiveautomation.kindling.utils.FlatScrollPane
-import io.github.inductiveautomation.kindling.utils.HorizontalSplitPane
-import io.github.inductiveautomation.kindling.utils.diff.Diff
-import io.github.inductiveautomation.kindling.utils.diff.Difference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -17,7 +12,6 @@ import net.miginfocom.swing.MigLayout
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.diff.DiffFormatter
-import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.revwalk.RevWalk
@@ -33,16 +27,13 @@ import java.awt.Color
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.nio.file.Path
-import javax.swing.BorderFactory
 import javax.swing.DefaultListModel
 import javax.swing.Icon
 import javax.swing.JButton
 import javax.swing.JLabel
 import javax.swing.JList
 import javax.swing.JPanel
-import javax.swing.JScrollPane
 import javax.swing.JSplitPane
-import javax.swing.JTextArea
 import javax.swing.ListSelectionModel
 import javax.swing.UIManager
 import javax.swing.border.EmptyBorder

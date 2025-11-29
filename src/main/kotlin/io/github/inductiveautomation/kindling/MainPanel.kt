@@ -11,6 +11,7 @@ import com.formdev.flatlaf.util.SystemInfo
 import com.jidesoft.swing.StyleRange.STYLE_UNDERLINED
 import io.github.inductiveautomation.kindling.core.ClipboardTool
 import io.github.inductiveautomation.kindling.core.CustomIconView
+import io.github.inductiveautomation.kindling.core.DirectoryTool
 import io.github.inductiveautomation.kindling.core.Kindling
 import io.github.inductiveautomation.kindling.core.Kindling.Preferences.Advanced.Debug
 import io.github.inductiveautomation.kindling.core.Kindling.Preferences.General.ChoosableEncodings
@@ -115,6 +116,12 @@ class MainPanel : JPanel(MigLayout("ins 6, fill, hidemode 3")) {
             val relevantTool = Tool.byFilter[e.newValue as FileFilter]
             encodingSelector.isEnabled = relevantTool?.respectsEncoding != false // null = 'all files', so enabled
             isFileHidingEnabled = relevantTool?.requiresHiddenFiles != true
+            // Enable directory selection for DirectoryTool implementations
+            fileSelectionMode = if (relevantTool is DirectoryTool) {
+                JFileChooser.FILES_AND_DIRECTORIES
+            } else {
+                JFileChooser.FILES_ONLY
+            }
         }
 
         addActionListener {

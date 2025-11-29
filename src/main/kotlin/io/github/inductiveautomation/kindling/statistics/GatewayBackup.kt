@@ -1,24 +1,9 @@
 package io.github.inductiveautomation.kindling.statistics
 
-import io.github.inductiveautomation.kindling.utils.Properties
-import io.github.inductiveautomation.kindling.utils.SQLiteConnection
-import io.github.inductiveautomation.kindling.utils.XML_FACTORY
-import io.github.inductiveautomation.kindling.utils.parse
-import io.github.inductiveautomation.kindling.utils.transferTo
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import org.w3c.dom.Document
-import java.nio.file.FileSystems
 import java.nio.file.Path
 import java.sql.Connection
 import java.util.Properties
-import kotlin.io.path.createTempFile
-import kotlin.io.path.exists
-import kotlin.io.path.inputStream
-import kotlin.io.path.isDirectory
-import kotlin.io.path.outputStream
 
 /**
  * Represents a Gateway Backup or configuration directory.
@@ -44,13 +29,6 @@ class GatewayBackup private constructor(
     val displayName: String get() = source.displayName
 
     companion object {
-        private const val IDB = "db_backup_sqlite.idb"
-        private const val BACKUP_INFO = "backupinfo.xml"
-        private const val REDUNDANCY = "redundancy.xml"
-        private const val IGNITION_CONF = "ignition.conf"
-        private const val PROJECTS = "projects"
-        private const val CONFIG = "config"
-
         /**
          * Create a GatewayBackup from a path.
          * If the path is a directory, it will be treated as a file-structure configuration.
