@@ -49,9 +49,12 @@ class ProjectView(override val provider: FileSystemProvider, override val path: 
         add(FileView(provider, path / "project.json"), "push, grow")
     }
 
-    override val icon: FlatSVGIcon = FlatActionIcon("icons/bx-box.svg")
+    override val icon: FlatSVGIcon = projectIcon
 
     companion object {
+        /** Shared icon for project views */
+        val projectIcon: FlatSVGIcon = FlatActionIcon("icons/bx-box.svg")
+
         internal val exportZipFileChooser by lazy {
             JFileChooser(HomeLocation.currentValue.toFile()).apply {
                 isMultiSelectionEnabled = false

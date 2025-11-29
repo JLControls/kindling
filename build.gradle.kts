@@ -97,8 +97,7 @@ tasks {
 kotlin {
     jvmToolchain {
         languageVersion = libs.versions.java.map(JavaLanguageVersion::of)
-        // Use any vendor for dev environment, Amazon Corretto for production
-        // vendor = JvmVendorSpec.AMAZON
+        vendor = JvmVendorSpec.AMAZON
     }
     sourceSets {
         main {

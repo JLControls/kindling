@@ -117,6 +117,14 @@ class GitBranchView(private val repoPath: Path) : ToolPanel("ins 6, fill") {
 
     private val statusLabel = JLabel("Select two branches and click Compare")
 
+    // Labels for branch headers - stored as references to enable dynamic updates
+    private val leftBranchLabel = JLabel("Base (${leftBranchCombo.selectedItem})").apply {
+        putClientProperty("FlatLaf.styleClass", "h4")
+    }
+    private val rightBranchLabel = JLabel("Compare (${rightBranchCombo.selectedItem})").apply {
+        putClientProperty("FlatLaf.styleClass", "h4")
+    }
+
     init {
         name = "Git: ${repoPath.name}"
         toolTipText = repoPath.toString()
@@ -141,15 +149,11 @@ class GitBranchView(private val repoPath: Path) : ToolPanel("ins 6, fill") {
         val diffContentPanel = JSplitPane(
             JSplitPane.HORIZONTAL_SPLIT,
             JPanel(BorderLayout()).apply {
-                add(JLabel("Base (${leftBranchCombo.selectedItem})").apply {
-                    putClientProperty("FlatLaf.styleClass", "h4")
-                }, BorderLayout.NORTH)
+                add(leftBranchLabel, BorderLayout.NORTH)
                 add(RTextScrollPane(leftDiffText), BorderLayout.CENTER)
             },
             JPanel(BorderLayout()).apply {
-                add(JLabel("Compare (${rightBranchCombo.selectedItem})").apply {
-                    putClientProperty("FlatLaf.styleClass", "h4")
-                }, BorderLayout.NORTH)
+                add(rightBranchLabel, BorderLayout.NORTH)
                 add(RTextScrollPane(rightDiffText), BorderLayout.CENTER)
             },
         ).apply {
@@ -186,6 +190,10 @@ class GitBranchView(private val repoPath: Path) : ToolPanel("ins 6, fill") {
             return
         }
 
+        // Update branch labels dynamically
+        leftBranchLabel.text = "Base ($leftBranch)"
+        rightBranchLabel.text = "Compare ($rightBranch)"
+
         statusLabel.text = "Comparing $leftBranch with $rightBranch..."
         diffListModel.clear()
         leftDiffText.text = ""
@@ -214,11 +222,13 @@ class GitBranchView(private val repoPath: Path) : ToolPanel("ins 6, fill") {
     }
 
     private fun resolveBranchRef(branchName: String): org.eclipse.jgit.lib.ObjectId? {
-        return branchRefCache.getOrPut(branchName) {
-            repository.resolve("refs/heads/$branchName")
-                ?: repository.resolve(branchName)
-                ?: return null
+        branchRefCache[branchName]?.let { return it }
+        val resolved = repository.resolve("refs/heads/$branchName")
+            ?: repository.resolve(branchName)
+        if (resolved != null) {
+            branchRefCache[branchName] = resolved
         }
+        return resolved
     }
 
     private fun getTreeIterator(branchName: String): AbstractTreeIterator {
