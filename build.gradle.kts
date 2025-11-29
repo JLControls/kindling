@@ -36,6 +36,7 @@ dependencies {
     api(libs.questdb)
     api(libs.rsyntaxtextarea)
     api(libs.bundles.jackson)
+    api(libs.jgit)
     runtimeOnly(libs.bundles.ia.transitive)
     testImplementation(libs.bundles.kotest)
 }

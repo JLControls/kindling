@@ -8,12 +8,12 @@ import io.github.inductiveautomation.kindling.utils.executeQuery
 
 data class MetaStatistics(
     val uuid: String?,
-    val gatewayName: String,
-    val edition: String,
+    val gatewayName: String?,
+    val edition: String?,
     val role: String?,
-    val version: String,
-    val initMemory: Int,
-    val maxMemory: Int,
+    val version: String?,
+    val initMemory: Int?,
+    val maxMemory: Int?,
 ) : Statistic {
     @Suppress("SqlResolve")
     companion object Calculator : StatisticCalculator<MetaStatistics> {
@@ -24,20 +24,22 @@ data class MetaStatistics(
                 sysprops
             """.trimIndent()
 
-        override suspend fun calculate(backup: GatewayBackup): MetaStatistics {
-            val sysPropsMap = backup.configDb.executeQuery(SYS_PROPS).asScalarMap()
+        override suspend fun calculate(backup: GatewayBackup): MetaStatistics? {
+            val configDb = backup.configDb ?: return null
 
-            val edition = backup.info.getElementsByTagName("edition").item(0)?.textContent
-            val version = backup.info.getElementsByTagName("version").item(0).textContent
+            val sysPropsMap = configDb.executeQuery(SYS_PROPS).asScalarMap()
+
+            val edition = backup.info?.getElementsByTagName("edition")?.item(0)?.textContent
+            val version = backup.info?.getElementsByTagName("version")?.item(0)?.textContent
 
             return MetaStatistics(
                 uuid = sysPropsMap["SYSTEMUID"] as String?,
-                gatewayName = sysPropsMap.getValue("SYSTEMNAME") as String,
+                gatewayName = sysPropsMap["SYSTEMNAME"] as String?,
                 edition = edition.takeUnless { it.isNullOrEmpty() } ?: "Standard",
-                role = backup.redundancyInfo.getProperty("redundancy.noderole"),
+                role = backup.redundancyInfo?.getProperty("redundancy.noderole"),
                 version = version,
-                initMemory = backup.ignitionConf.getProperty("wrapper.java.initmemory").takeWhile { it.isDigit() }.toInt(),
-                maxMemory = backup.ignitionConf.getProperty("wrapper.java.maxmemory").takeWhile { it.isDigit() }.toInt(),
+                initMemory = backup.ignitionConf?.getProperty("wrapper.java.initmemory")?.takeWhile { it.isDigit() }?.toIntOrNull(),
+                maxMemory = backup.ignitionConf?.getProperty("wrapper.java.maxmemory")?.takeWhile { it.isDigit() }?.toIntOrNull(),
             )
         }
     }

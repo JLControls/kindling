@@ -15,41 +15,33 @@ import java.nio.file.Path
 import java.sql.Connection
 import java.util.Properties
 import kotlin.io.path.createTempFile
+import kotlin.io.path.exists
 import kotlin.io.path.inputStream
+import kotlin.io.path.isDirectory
 import kotlin.io.path.outputStream
 
-class GatewayBackup(path: Path) {
-    private val zipFile = FileSystems.newFileSystem(path)
-    private val root: Path = zipFile.rootDirectories.first()
+/**
+ * Represents a Gateway Backup or configuration directory.
+ * Supports both .gwbk files (ZIP archives) and file-structure based configurations (Ignition 8.3+).
+ */
+class GatewayBackup private constructor(
+    private val source: IgnitionConfigSource,
+) {
+    val info: Document? get() = source.info
 
-    val info: Document = root.resolve(BACKUP_INFO).inputStream().use(XML_FACTORY::parse)
+    val projectsDirectory: Path get() = source.projectsDirectory
 
-    val projectsDirectory: Path = root.resolve(PROJECTS)
+    val configDirectory: Path get() = source.configDirectory
 
-    val configDirectory: Path = root.resolve(CONFIG)
+    val configDb: Connection? get() = source.configDb
 
-    private val tempFile: Path = createTempFile("gwbk-stats", "idb")
+    val ignitionConf: Properties? get() = source.ignitionConf
 
-    // eagerly copy out the IDB, since we're always building the statistics view anyways
-    private val dbCopyJob =
-        CoroutineScope(Dispatchers.IO).launch {
-            root.resolve(IDB).inputStream() transferTo tempFile.outputStream()
-        }
+    val redundancyInfo: Properties? get() = source.redundancyInfo
 
-    val configDb: Connection by lazy {
-        // ensure the file copy is complete
-        runBlocking { dbCopyJob.join() }
+    val isZipBased: Boolean get() = source.isZipBased
 
-        SQLiteConnection(tempFile)
-    }
-
-    val ignitionConf: Properties by lazy {
-        Properties((root.resolve(IGNITION_CONF)).inputStream())
-    }
-
-    val redundancyInfo: Properties by lazy {
-        Properties(root.resolve(REDUNDANCY).inputStream(), Properties::loadFromXML)
-    }
+    val displayName: String get() = source.displayName
 
     companion object {
         private const val IDB = "db_backup_sqlite.idb"
@@ -58,5 +50,14 @@ class GatewayBackup(path: Path) {
         private const val IGNITION_CONF = "ignition.conf"
         private const val PROJECTS = "projects"
         private const val CONFIG = "config"
+
+        /**
+         * Create a GatewayBackup from a path.
+         * If the path is a directory, it will be treated as a file-structure configuration.
+         * If the path is a file, it will be treated as a .gwbk ZIP archive.
+         */
+        operator fun invoke(path: Path): GatewayBackup {
+            return GatewayBackup(IgnitionConfigSource.from(path))
+        }
     }
 }

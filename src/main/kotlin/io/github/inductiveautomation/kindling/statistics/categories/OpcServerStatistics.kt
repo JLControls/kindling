@@ -7,6 +7,7 @@ import io.github.inductiveautomation.kindling.utils.executeQuery
 import io.github.inductiveautomation.kindling.utils.get
 import io.github.inductiveautomation.kindling.utils.toList
 import org.intellij.lang.annotations.Language
+import java.sql.Connection
 import java.sql.ResultSet
 import java.sql.SQLException
 
@@ -75,9 +76,11 @@ data class OpcServerStatistics(
             """.trimIndent()
 
         override suspend fun calculate(backup: GatewayBackup): OpcServerStatistics? {
-            val uaServers = queryServers(backup, UA_SERVER_QUERY, enabled = { it["enabled"] })
-            val comServers = queryServers(backup, COM_SERVER_QUERY, enabled = { it["enabled"] })
-            val otherServers = queryServers(backup, OTHER_SERVER_QUERY, enabled = { null })
+            val configDb = backup.configDb ?: return null
+
+            val uaServers = queryServers(configDb, UA_SERVER_QUERY, enabled = { it["enabled"] })
+            val comServers = queryServers(configDb, COM_SERVER_QUERY, enabled = { it["enabled"] })
+            val otherServers = queryServers(configDb, OTHER_SERVER_QUERY, enabled = { null })
 
             if (uaServers.isEmpty() && comServers.isEmpty() && otherServers.isEmpty()) {
                 return null
@@ -87,12 +90,12 @@ data class OpcServerStatistics(
         }
 
         private fun queryServers(
-            backup: GatewayBackup,
+            configDb: Connection,
             @Language("sql")
             query: String,
             enabled: (ResultSet) -> Boolean?,
         ): List<OpcServer> = try {
-            backup.configDb
+            configDb
                 .executeQuery(query)
                 .toList { rs ->
                     OpcServer(

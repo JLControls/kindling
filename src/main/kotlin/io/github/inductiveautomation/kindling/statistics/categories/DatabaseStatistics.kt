@@ -42,8 +42,10 @@ data class DatabaseStatistics(
             """.trimIndent()
 
         override suspend fun calculate(backup: GatewayBackup): DatabaseStatistics? {
+            val configDb = backup.configDb ?: return null
+
             val connections =
-                backup.configDb.executeQuery(DATABASE_STATS).toList { rs ->
+                configDb.executeQuery(DATABASE_STATS).toList { rs ->
                     Connection(
                         name = rs[1],
                         description = rs[2],

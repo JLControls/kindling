@@ -34,8 +34,10 @@ data class DeviceStatistics(
             """.trimIndent()
 
         override suspend fun calculate(backup: GatewayBackup): DeviceStatistics? {
+            val configDb = backup.configDb ?: return null
+
             val devices =
-                backup.configDb.executeQuery(DEVICES)
+                configDb.executeQuery(DEVICES)
                     .toList { rs ->
                         Device(
                             name = rs[1],

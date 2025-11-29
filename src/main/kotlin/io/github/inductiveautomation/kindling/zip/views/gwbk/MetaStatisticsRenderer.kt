@@ -13,7 +13,7 @@ class MetaStatisticsRenderer : StatisticRenderer<MetaStatistics> {
     override val icon: Icon? = null
 
     override fun MetaStatistics.render(): JComponent {
-        title = "Gateway: $gatewayName"
+        title = "Gateway: ${gatewayName ?: "Unknown"}"
 
         return JPanel(BorderLayout()).apply {
             add(
@@ -37,12 +37,12 @@ class MetaStatisticsRenderer : StatisticRenderer<MetaStatistics> {
 
     companion object {
         private val displayedStatistics: List<MetaStatistic> = listOf(
-            MetaStatistic("Version") { it.version },
+            MetaStatistic("Version") { it.version ?: "Unknown" },
             MetaStatistic("Role") { it.role ?: "Independent" },
-            MetaStatistic("Edition") { it.edition },
+            MetaStatistic("Edition") { it.edition ?: "Standard" },
             MetaStatistic("UUID") { it.uuid.orEmpty() },
-            MetaStatistic("Init Memory", suffix = "mB") { it.initMemory.toString() },
-            MetaStatistic("Max Memory", suffix = "mB") { it.maxMemory.toString() },
+            MetaStatistic("Init Memory", suffix = "mB") { it.initMemory?.toString() ?: "N/A" },
+            MetaStatistic("Max Memory", suffix = "mB") { it.maxMemory?.toString() ?: "N/A" },
         )
     }
 }
