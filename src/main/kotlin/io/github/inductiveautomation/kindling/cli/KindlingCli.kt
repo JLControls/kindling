@@ -164,11 +164,19 @@ object KindlingCli {
         while (i < args.size) {
             when (args[i]) {
                 "--base", "-b" -> {
-                    baseBranch = args.getOrNull(i + 1)
+                    if (i + 1 >= args.size) {
+                        System.err.println("Error: --base requires a branch name")
+                        exitProcess(1)
+                    }
+                    baseBranch = args[i + 1]
                     i += 2
                 }
                 "--compare", "-c" -> {
-                    compareBranch = args.getOrNull(i + 1)
+                    if (i + 1 >= args.size) {
+                        System.err.println("Error: --compare requires a branch name")
+                        exitProcess(1)
+                    }
+                    compareBranch = args[i + 1]
                     i += 2
                 }
                 else -> i++
@@ -285,7 +293,8 @@ object KindlingCli {
                 isGitRepository = GitBranchViewer.isGitRepository(path),
             )
         } else if (path.isRegularFile()) {
-            val extension = path.fileName.toString().substringAfterLast('.', "").lowercase()
+            val fileName = path.fileName?.toString() ?: path.toString()
+            val extension = fileName.substringAfterLast('.', "").lowercase()
             FileAnalysisResult(
                 path = path.toString(),
                 type = extension,

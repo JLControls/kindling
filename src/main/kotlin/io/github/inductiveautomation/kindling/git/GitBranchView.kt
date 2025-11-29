@@ -118,10 +118,10 @@ class GitBranchView(private val repoPath: Path) : ToolPanel("ins 6, fill") {
     private val statusLabel = JLabel("Select two branches and click Compare")
 
     // Labels for branch headers - stored as references to enable dynamic updates
-    private val leftBranchLabel = JLabel("Base (${leftBranchCombo.selectedItem})").apply {
+    private val leftBranchLabel = JLabel("Base (${leftBranchCombo.selectedItem ?: "N/A"})").apply {
         putClientProperty("FlatLaf.styleClass", "h4")
     }
-    private val rightBranchLabel = JLabel("Compare (${rightBranchCombo.selectedItem})").apply {
+    private val rightBranchLabel = JLabel("Compare (${rightBranchCombo.selectedItem ?: "N/A"})").apply {
         putClientProperty("FlatLaf.styleClass", "h4")
     }
 
