@@ -12,18 +12,18 @@ jgit = "7.3.0.202506031305-r"
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 conveyor = { id = "dev.hydraulic.conveyor", version = "1.12" }
-spotless = { id = "com.diffplug.spotless", version = "8.0.0" }
-dokka = { id = "org.jetbrains.dokka", version = "2.0.0" }
+spotless = { id = "com.diffplug.spotless", version = "8.1.0" }
+dokka = { id = "org.jetbrains.dokka", version = "2.1.0" }
 
 [libraries]
 # core functionality
 coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
 coroutines-swing = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-swing", version.ref = "coroutines" }
 serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version = "1.9.0" }
-xerial-jdbc = { group = "org.xerial", name = "sqlite-jdbc", version = "3.50.3.0" }
+xerial-jdbc = { group = "org.xerial", name = "sqlite-jdbc", version = "3.51.1.0" }
 logback = { group = "ch.qos.logback", name = "logback-classic", version = "1.5.18" }
 hsql = { group = "org.hsqldb", name = "hsqldb", version = "2.7.4" }
-poi = { group = "org.apache.poi", name = "poi-ooxml", version = "5.4.1" }
+poi = { group = "org.apache.poi", name = "poi-ooxml", version = "5.5.1" }
 excelkt = { group = "io.github.evanrupert", name = "excelkt", version = "1.0.2" }
 jsvg = { group = "com.github.weisj", name = "jsvg", version = "2.0.0" }
 jackson-kotlin = { group = "com.fasterxml.jackson.module", name = "jackson-module-kotlin", version.ref = "jackson" }

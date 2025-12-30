@@ -52,6 +52,9 @@ interface Tool : KindlingSerializable {
     fun open(path: Path): ToolPanel
 
     val filter: FileFilter
+        get() = FileFilter(description, *extensions)
+
+    val extensions: Array<String>
 
     companion object {
         val tools: List<Tool> by lazy {
@@ -78,6 +81,16 @@ interface Tool : KindlingSerializable {
 
         val byFilter: Map<FileFilter, Tool> by lazy {
             tools.associateBy(Tool::filter)
+        }
+
+        val byExtension: Map<String, List<Tool>> by lazy {
+            buildMap {
+                for (tool in tools) {
+                    for (ext in tool.extensions) {
+                        this[ext] = this[ext]?.plus(tool) ?: listOf(tool)
+                    }
+                }
+            }
         }
 
         fun find(path: Path): Tool? = tools.find { tool ->
