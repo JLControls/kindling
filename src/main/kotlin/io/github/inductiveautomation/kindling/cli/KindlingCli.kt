@@ -185,53 +185,56 @@ object KindlingCli {
 
         // Open repository
         val repository = GitBranchViewer.openRepository(repoPath)
-        val git = Git(repository)
+        try {
+            val git = Git(repository)
 
-        // Get available branches
-        val branches = git.branchList().call()
-        val branchNames = branches.map { it.name.removePrefix("refs/heads/") }
+            // Get available branches
+            val branches = git.branchList().call()
+            val branchNames = branches.map { it.name.removePrefix("refs/heads/") }
 
-        // Use default branches if not specified
-        if (baseBranch == null) {
-            baseBranch = branchNames.find { it in listOf("main", "master") } ?: branchNames.firstOrNull()
+            // Use default branches if not specified
+            if (baseBranch == null) {
+                baseBranch = branchNames.find { it in listOf("main", "master") } ?: branchNames.firstOrNull()
+            }
+            if (compareBranch == null) {
+                compareBranch = branchNames.find { it != baseBranch }
+            }
+
+            if (baseBranch == null || compareBranch == null) {
+                System.err.println("Error: Could not determine branches to compare")
+                exitProcess(1)
+            }
+
+            // Get diffs
+            val diffs = try {
+                getDiffs(repository, baseBranch, compareBranch)
+            } catch (e: Exception) {
+                System.err.println("Error comparing branches: ${e.message}")
+                exitProcess(1)
+            }
+
+            val result = BranchComparisonResult(
+                repositoryPath = repoPath.toString(),
+                baseBranch = baseBranch,
+                compareBranch = compareBranch,
+                availableBranches = branchNames,
+                changedFiles = diffs.map { diff ->
+                    ChangedFile(
+                        changeType = diff.changeType.name,
+                        oldPath = diff.oldPath.takeIf { it != "/dev/null" },
+                        newPath = diff.newPath.takeIf { it != "/dev/null" },
+                    )
+                },
+                totalChanges = diffs.size,
+                additions = diffs.count { it.changeType == DiffEntry.ChangeType.ADD },
+                deletions = diffs.count { it.changeType == DiffEntry.ChangeType.DELETE },
+                modifications = diffs.count { it.changeType == DiffEntry.ChangeType.MODIFY },
+            )
+
+            println(json.encodeToString(result))
+        } finally {
+            repository.close()
         }
-        if (compareBranch == null) {
-            compareBranch = branchNames.find { it != baseBranch }
-        }
-
-        if (baseBranch == null || compareBranch == null) {
-            System.err.println("Error: Could not determine branches to compare")
-            exitProcess(1)
-        }
-
-        // Get diffs
-        val diffs = try {
-            getDiffs(repository, baseBranch, compareBranch)
-        } catch (e: Exception) {
-            System.err.println("Error comparing branches: ${e.message}")
-            exitProcess(1)
-        }
-
-        val result = BranchComparisonResult(
-            repositoryPath = repoPath.toString(),
-            baseBranch = baseBranch,
-            compareBranch = compareBranch,
-            availableBranches = branchNames,
-            changedFiles = diffs.map { diff ->
-                ChangedFile(
-                    changeType = diff.changeType.name,
-                    oldPath = diff.oldPath.takeIf { it != "/dev/null" },
-                    newPath = diff.newPath.takeIf { it != "/dev/null" },
-                )
-            },
-            totalChanges = diffs.size,
-            additions = diffs.count { it.changeType == DiffEntry.ChangeType.ADD },
-            deletions = diffs.count { it.changeType == DiffEntry.ChangeType.DELETE },
-            modifications = diffs.count { it.changeType == DiffEntry.ChangeType.MODIFY },
-        )
-
-        repository.close()
-        println(json.encodeToString(result))
     }
 
     private fun getDiffs(
@@ -247,26 +250,26 @@ object KindlingCli {
             ?: repository.resolve(compareBranch)
             ?: throw IllegalArgumentException("Cannot resolve branch: $compareBranch")
 
-        val revWalk = RevWalk(repository)
-        val baseCommit = revWalk.parseCommit(baseRef)
-        val compareCommit = revWalk.parseCommit(compareRef)
+        return RevWalk(repository).use { revWalk ->
+            val baseCommit = revWalk.parseCommit(baseRef)
+            val compareCommit = revWalk.parseCommit(compareRef)
 
-        val baseTree = CanonicalTreeParser().apply {
-            repository.newObjectReader().use { reader ->
-                reset(reader, baseCommit.tree.id)
+            val baseTree = CanonicalTreeParser().apply {
+                repository.newObjectReader().use { reader ->
+                    reset(reader, baseCommit.tree.id)
+                }
+            }
+            val compareTree = CanonicalTreeParser().apply {
+                repository.newObjectReader().use { reader ->
+                    reset(reader, compareCommit.tree.id)
+                }
+            }
+
+            DiffFormatter(ByteArrayOutputStream()).use { diffFormatter ->
+                diffFormatter.setRepository(repository)
+                diffFormatter.scan(baseTree, compareTree)
             }
         }
-        val compareTree = CanonicalTreeParser().apply {
-            repository.newObjectReader().use { reader ->
-                reset(reader, compareCommit.tree.id)
-            }
-        }
-
-        val diffFormatter = DiffFormatter(ByteArrayOutputStream()).apply {
-            setRepository(repository)
-        }
-
-        return diffFormatter.scan(baseTree, compareTree)
     }
 
     /**
